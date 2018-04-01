@@ -25,7 +25,7 @@ reddit = praw.Reddit(user_agent=user_agent,
                      client_secret=client_secret,
                      username=username, password=password)
 
-subreddit = reddit.subreddit('tcss')
+subreddit = reddit.subreddit(os.environ['SUBREDDIT'])
 p = re.compile(r'overwatch', re.IGNORECASE)
 
 def deal_with(submission):
