@@ -12,7 +12,7 @@ observed_comments = []
 last_time = datetime.now()
 total_times = 0
 
-user_agent = os.environ['CLIENT_SECRET']
+user_agent = os.environ['USER_AGENT']
 client_id = os.environ['CLIENT_ID']
 client_secret = os.environ['CLIENT_SECRET']
 
