@@ -4,6 +4,11 @@ Theory: /r/tf2 can't not mention Overwatch.
 
 This bot tracks the total times overwatch is mentioned & the last time it is mentioned.
 
+## TODO
+
+  - Let users opt-out
+  - Don't reply multiple times in a chain
+
 ## Example Message
 
 **Last mention of Overwatch: ~~0:10:30.879897~~ just now.**
