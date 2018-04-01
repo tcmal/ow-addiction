@@ -5,19 +5,19 @@ from praw.exceptions import APIException
 p = re.compile(r'overwatch', re.IGNORECASE)
 
 class CommentHandler:
-	def __init__(self, total_times=0, last_time=datetime.utcfromtimestamp(0), last_checked=datetime.now(), blocked_users=[]):
+	def __init__(self, total_times=0, last_time=datetime.utcfromtimestamp(0), last_checked=datetime.now(), blocked_users=[], debug=False):
 		self.total_times = total_times
 		self.last_time = last_time
 		self.last_checked = last_checked
 		self.blocked_users = blocked_users
-		print(self.blocked_users)
+		self.debug = debug
 
 	def handle_comment(self, submission):
 		if submission.author.name in self.blocked_users:
 			return
 		
-		print("---")
-		print("Post (" + submission.author.name + "): " + submission.body)
+		self._debug("---")
+		self._debug("Post (" + submission.author.name + "): " + submission.body)
 		
 		self.total_times += 1
 		time_since = (datetime.now() - self.last_time)
@@ -25,17 +25,17 @@ class CommentHandler:
 		# TODO: Store this better
 		reply = "**Last mention of Overwatch: ~~%s~~ just now.**  \nTotal mentions of OW: %s  \n\n^^I'm ^^a ^^bot. ^^Beep ^^Boop. ^^Owner: ^^tcmalloc" % (time_since, self.total_times)
 		
-		print(reply)
+		self._debug(reply)
 		try: 
-			submission.reply(reply)
-			pass
+			if not self.debug:
+				submission.reply(reply)
 		except APIException:
-			print("Encountered API exception while replying")
+			self._debug("Encountered API exception while replying")
 
 		self.last_time = datetime.now()
 
 	def handle(self, subreddit):
-		print("Checking Comments...")
+		self._debug("Checking Comments...")
 		# work back through new till we get to one before the last checked time
    
 		# while we're still checking for stuff
@@ -61,3 +61,7 @@ class CommentHandler:
 		# update the last checked time
 		self.last_checked = datetime.now()
 
+	# logs if we're currently debugging
+	def _debug(self, msg):
+		if self.debug:
+			print(msg)

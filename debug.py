@@ -1,6 +1,6 @@
 from main import Bot
 
-bot = Bot()
+bot = Bot(True)
 
 try:
 	bot.main_loop(5)
