@@ -1,3 +1,4 @@
+from threading import Thread
 import calendar
 import json
 import os
@@ -71,14 +72,16 @@ try:
 except IOError:
     print("No past config.")
 
-try:
-    watch_comments(reddit, subreddit)
-except KeyboardInterrupt:
-    print("Saving stats...")
+def main(reddit, subreddit):
+    try:
+        watch_comments(reddit, subreddit)
+    except KeyboardInterrupt:
+        print("Saving stats...")
 
-    # reddit will only return the last 100 comments so we don't need to store past that.
-    del observed_comments[100:]
+        # reddit will only return the last 100 comments so we don't need to store past that.
+        del observed_comments[100:]
 
-    with open("bot.json", "w") as f:
-        json.dump({"observed_comments": observed_comments, "total_times": total_times, "last_time": calendar.timegm(last_time.timetuple())}, f, indent="\t")
+        with open("bot.json", "w") as f:
+            json.dump({"observed_comments": observed_comments, "total_times": total_times, "last_time": calendar.timegm(last_time.timetuple())}, f, indent="\t")
 
+Thread(target=main, args=(reddit, subreddit)).start()
