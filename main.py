@@ -7,22 +7,18 @@ import calendar
 
 from comments import CommentHandler
 
-user_agent = os.environ['USER_AGENT']
-client_id = os.environ['CLIENT_ID']
-client_secret = os.environ['CLIENT_SECRET']
-
-username = os.environ['REDDIT_USERNAME']
-password = os.environ['REDDIT_PASSWORD']
-
 class Bot:
-	def __init__(self, debug=False):
+	def __init__(self, debug=False, user_agent=os.environ['USER_AGENT'], client_id=os.environ['CLIENT_ID'], 
+				client_secret=os.environ['CLIENT_SECRET'], username=os.environ['REDDIT_USERNAME'],
+				password=os.environ['REDDIT_PASSWORD'], subreddit=os.environ['SUBREDDIT']):
+		
 		self.debug = debug
 		self.reddit = praw.Reddit(user_agent=user_agent,
 							 client_id=client_id,
 							 client_secret=client_secret,
 							 username=username, password=password)
 
-		self.subreddit = self.reddit.subreddit(os.environ['SUBREDDIT'])
+		self.subreddit = self.reddit.subreddit(subreddit)
 		
 		try:
 			with open("bot.json", "r") as f:
