@@ -10,32 +10,32 @@ from messages import MessageHandler
 
 class Bot:
 	def __init__(self, debug=False, user_agent=None, client_id=None, client_secret=None, username=None, password=None, subreddit=None):
-		
+
 		self.debug = debug
 		self.reddit = praw.Reddit(user_agent=user_agent,
-							 client_id=client_id,
-							 client_secret=client_secret,
-							 username=username, password=password)
+				client_id=client_id,
+				client_secret=client_secret,
+				username=username, password=password)
 
 		self.subreddit = self.reddit.subreddit(subreddit)
-		
+
 		try:
 			with open("bot.json", "r") as f:
 				data = json.load(f)
-			
+
 			if username not in data["blocked_users"]:
 				data["blocked_users"].append(username)
 
 			self.comment_handler = CommentHandler(self.reddit.user.me().name, data["total_times"], 
-				datetime.utcfromtimestamp(int(data["last_time"])), 
-				datetime.utcfromtimestamp(int(data["last_checked"])), 
-				data["blocked_users"],
-				self.debug)
+					datetime.utcfromtimestamp(int(data["last_time"])), 
+					datetime.utcfromtimestamp(int(data["last_checked"])), 
+					data["blocked_users"],
+					self.debug)
 
 			self.message_handler = MessageHandler(self.comment_handler, datetime.utcfromtimestamp(data["last_checked_msg"]), self.debug)
-			
+
 			print("Loaded past config.")
-		
+
 		except IOError:
 			print("No past config.")
 			self.comment_handler = CommentHandler(self.reddit.user.me().name, self.debug)
@@ -56,14 +56,22 @@ class Bot:
 				"last_checked_msg": calendar.timegm(last_checked_msg.timetuple())}, 
 				f, indent="\t")
 
-		print("Saved config.")
+			print("Saved config.")
 
 	def main_loop(self, delay):
+		i = 0
 		while True:
+			# save every 5 loops
+			if i >= 5:
+				self.save()
+				i = 0 
+			
 			# handle new messages
 			self.message_handler.handle(self.reddit)
 			# handle new comments
 			self.comment_handler.handle(self.subreddit)
+			
+			i += 1
 
 			# delay before looping again
 			time.sleep(delay)
