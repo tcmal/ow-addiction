@@ -28,7 +28,7 @@ class Bot:
 			if username not in data["blocked_users"]:
 				data["blocked_users"].append(username)
 
-			self.comment_handler = CommentHandler(data["total_times"], 
+			self.comment_handler = CommentHandler(self.reddit.user.me().name, data["total_times"], 
 				datetime.utcfromtimestamp(int(data["last_time"])), 
 				datetime.utcfromtimestamp(int(data["last_checked"])), 
 				data["blocked_users"],
@@ -40,7 +40,7 @@ class Bot:
 		
 		except IOError:
 			print("No past config.")
-			self.comment_handler = CommentHandler()
+			self.comment_handler = CommentHandler(self.reddit.user.me().name)
 			self.message_handler = MessageHandler(self.comment_handler, None, self.debug)
 
 	def save(self):

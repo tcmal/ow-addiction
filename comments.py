@@ -5,7 +5,8 @@ from praw.exceptions import APIException
 p = re.compile(r'overwatch', re.IGNORECASE)
 
 class CommentHandler:
-	def __init__(self, total_times=0, last_time=datetime.now(), last_checked=datetime.now(), blocked_users=[], debug=False):
+	def __init__(self, username, total_times=0, last_time=datetime.now(), last_checked=datetime.now(), blocked_users=[], debug=False):
+		self.username = username
 		self.total_times = total_times
 		self.last_time = last_time
 		self.last_checked = last_checked
@@ -13,7 +14,8 @@ class CommentHandler:
 		self.debug = debug
 
 	def handle_comment(self, submission):
-		
+		if not p.match(submission.body):
+			return
 		self._debug("---")
 		self._debug("Post (" + submission.author.name + "): " + submission.body)
 		
@@ -25,12 +27,30 @@ class CommentHandler:
 		
 		self._debug(reply)
 		try: 
-			if not self.debug:
-				if submission.author.name in self.blocked_users:
-					self._debug("Blocked: Don't reply")
-					return
+			if submission.author.name in self.blocked_users:
+				self._debug("Blocked: Don't reply")
+				return
+			else:
+				# get the top-most comment
+				ancestor = submission
+				refresh_counter = 0
+				while not ancestor.is_root:
+					ancestor = ancestor.parent()
+					if refresh_counter % 9 == 0:
+						ancestor.refresh()
+					refresh_counter += 1
+
+				# check if any of the replies are ours
+				replies = ancestor.replies.list()
+				ours = [x for x in replies if x.author.name == self.username]
+				print(ours)	
+				# if not, reply 
+				if len(ours) < 1:
+					self._debug("Seems fine. Reply")
+					if not self.debug:
+						submission.reply(reply)
 				else:
-					submission.reply(reply)
+					self._debug("Already replied to this thread.")
 		except APIException:
 			self._debug("Encountered API exception while replying")
 
@@ -48,7 +68,7 @@ class CommentHandler:
 		for comment in comments:
 			# for each one, check if they're from before when we last checked
 			created = datetime.fromtimestamp(int(comment.created_utc))
-			if created <= self.last_checked:
+			if created < self.last_checked:
 				# if so, we're done. break out both loops
 				break
 
