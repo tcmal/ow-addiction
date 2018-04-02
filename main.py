@@ -9,9 +9,7 @@ from comments import CommentHandler
 from messages import MessageHandler
 
 class Bot:
-	def __init__(self, debug=False, user_agent=os.environ['USER_AGENT'], client_id=os.environ['CLIENT_ID'], 
-				client_secret=os.environ['CLIENT_SECRET'], username=os.environ['REDDIT_USERNAME'],
-				password=os.environ['REDDIT_PASSWORD'], subreddit=os.environ['SUBREDDIT']):
+	def __init__(self, debug=False, user_agent=None, client_id=None, client_secret=None, username=None, password=None, subreddit=None):
 		
 		self.debug = debug
 		self.reddit = praw.Reddit(user_agent=user_agent,
@@ -40,7 +38,7 @@ class Bot:
 		
 		except IOError:
 			print("No past config.")
-			self.comment_handler = CommentHandler(self.reddit.user.me().name)
+			self.comment_handler = CommentHandler(self.reddit.user.me().name, self.debug)
 			self.message_handler = MessageHandler(self.comment_handler, None, self.debug)
 
 	def save(self):
