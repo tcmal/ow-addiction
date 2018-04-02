@@ -5,7 +5,7 @@ from praw.exceptions import APIException
 p = re.compile(r'overwatch', re.IGNORECASE)
 
 class CommentHandler:
-	def __init__(self, total_times=0, last_time=datetime.utcfromtimestamp(0), last_checked=datetime.now(), blocked_users=[], debug=False):
+	def __init__(self, total_times=0, last_time=datetime.now(), last_checked=datetime.now(), blocked_users=[], debug=False):
 		self.total_times = total_times
 		self.last_time = last_time
 		self.last_checked = last_checked
@@ -13,8 +13,6 @@ class CommentHandler:
 		self.debug = debug
 
 	def handle_comment(self, submission):
-		if submission.author.name in self.blocked_users:
-			return
 		
 		self._debug("---")
 		self._debug("Post (" + submission.author.name + "): " + submission.body)
@@ -28,7 +26,11 @@ class CommentHandler:
 		self._debug(reply)
 		try: 
 			if not self.debug:
-				submission.reply(reply)
+				if submission.author.name in self.blocked_users:
+					self._debug("Blocked: Don't reply")
+					return
+				else:
+					submission.reply(reply)
 		except APIException:
 			self._debug("Encountered API exception while replying")
 
@@ -36,10 +38,7 @@ class CommentHandler:
 
 	def handle(self, subreddit):
 		self._debug("Checking Comments...")
-		# work back through new till we get to one before the last checked time
-   
-		# while we're still checking for stuff
-		isChecking = True
+		# work back through comments till we get to one before the last checked time
 
 		# get comments
 		# caveat: praw doesn't let us specify an offset, so if a lot of commenting happens in a short space of time, 
@@ -65,3 +64,8 @@ class CommentHandler:
 	def _debug(self, msg):
 		if self.debug:
 			print(msg)
+
+	def block_user(self, user):
+		if user.name not in self.blocked_users:
+			self._debug("Blocking /u/" + user.name)
+			self.blocked_users.append(user.name)

@@ -6,6 +6,7 @@ from datetime import datetime
 import calendar
 
 from comments import CommentHandler
+from messages import MessageHandler
 
 class Bot:
 	def __init__(self, debug=False, user_agent=os.environ['USER_AGENT'], client_id=os.environ['CLIENT_ID'], 
@@ -33,23 +34,28 @@ class Bot:
 				data["blocked_users"],
 				self.debug)
 
+			self.message_handler = MessageHandler(self.comment_handler, datetime.utcfromtimestamp(data["last_checked_msg"]), self.debug)
+			
 			print("Loaded past config.")
 		
 		except IOError:
 			print("No past config.")
 			self.comment_handler = CommentHandler()
-	
+			self.message_handler = MessageHandler(self.comment_handler, None, self.debug)
+
 	def save(self):
 		total_times = self.comment_handler.total_times
 		last_time = self.comment_handler.last_time
 		last_checked = self.comment_handler.last_checked
+		last_checked_msg = self.message_handler.last_checked
 		blocked_users = self.comment_handler.blocked_users
 
 		with open("bot.json", "w") as f:
 			json.dump({"blocked_users": blocked_users, 
 				"total_times": total_times, 
 				"last_time": calendar.timegm(last_time.timetuple()), 
-				"last_checked": calendar.timegm(last_checked.timetuple())}, 
+				"last_checked": calendar.timegm(last_checked.timetuple()),
+				"last_checked_msg": calendar.timegm(last_checked_msg.timetuple())}, 
 				f, indent="\t")
 
 		print("Saved config.")
@@ -57,7 +63,7 @@ class Bot:
 	def main_loop(self, delay):
 		while True:
 			# handle new messages
-			# TODO
+			self.message_handler.handle(self.reddit)
 			# handle new comments
 			self.comment_handler.handle(self.subreddit)
 
