@@ -6,7 +6,6 @@ This bot tracks the total times overwatch is mentioned & the last time it is men
 
 ## TODO
 
-  - Let users opt-out
   - Don't reply multiple times in a chain
 
 ## Example Message
