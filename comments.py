@@ -23,7 +23,7 @@ class CommentHandler:
 		time_since = (datetime.now() - self.last_time)
 		
 		# TODO: Store this better
-		reply = "**Last mention of Overwatch: ~~%s~~ just now.**  \nTotal mentions of OW: %s  \n\n^^I'm ^^a ^^bot. ^^Beep ^^Boop. ^^Owner: ^^tcmalloc" % (time_since, self.total_times)
+		reply = "**Last mention of Overwatch: ~~%s~~ just now.**  \nTotal mentions of OW: %s  \n\n^^I'm ^^a ^^bot. ^^Beep ^^Boop. ^^Message ^^`blockme` ^^to ^^stop ^^me ^^replying. ^^Owner: ^^tcmalloc" % (time_since, self.total_times)
 		
 		self._debug(reply)
 		try: 
