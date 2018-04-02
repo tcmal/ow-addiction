@@ -32,7 +32,7 @@ class MessageHandler:
 		self.last_checked = datetime.now()
 
 	def confirm_block(self, r, u):
-		r.send_message(u, "Blocked Successfully", "I won't reply to you anymore, but I'll still change the counter when you mention overwatch.")	
+		u.message("Blocked Successfully", "I won't reply to you anymore, but I'll still change the counter when you mention overwatch. ;)")	
 
 	# logs if we're currently debugging
 	def _debug(self, msg):
